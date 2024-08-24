@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <string.h>
 
+#include "Lista.h"
 
 #define MAX_STR_LEN 40
 #define MIN_INT -32768  //2^15 (1 para el signo) - 1 (el mayor número representable)
@@ -13,7 +14,7 @@
 
 FILE *yyin;
 int yylval;
-
+t_lista lista_ts;
 
 void guardar_en_TS();
 void mostrar_token_inutil();
@@ -138,17 +139,16 @@ COMENTARIO_ANIDADO  "*-"[^*-]*{COMENTARIO}[^-*]*"-*"
 
 int main(int argc,char *argv[])
 {
+    chiche();
+
     if ((yyin = fopen(argv[1], "rt")) == NULL) {
         printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
     }
 
     yylex();
     fclose(yyin);
-}
 
-void mostrar_token_inutil(){
-    //printf("\nToken no procesable: %s\n", yytext);
-    return;
+    printf("la lista vale: %p", lista_ts);
 }
 
 void guardar_en_TS(){

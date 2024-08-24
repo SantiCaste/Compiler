@@ -7,7 +7,7 @@ MAKEFLAGS += --no-print-directory
 compile:
 	@echo compiling lexer and executable compiler
 	@flex lex.l
-	@gcc.exe lex.yy.c -o $(COMPILER_FILE)
+	@gcc.exe lex.yy.c -o $(COMPILER_FILE) Lista.c
 	@echo compilation finished
 
 #run the compiler:
