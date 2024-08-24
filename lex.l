@@ -5,11 +5,10 @@
 #include <string.h>
 
 
-#define MAX_ID_LEN 30
 #define MAX_STR_LEN 40
-#define MIN_INT -32767  //2^15 (1 para el signo) - 1 (el mayor número representable)
+#define MIN_INT -32768  //2^15 (1 para el signo) - 1 (el mayor número representable)
 #define MAX_INT 32767   //2^15 (1 para el signo) - 1 (el mayor número representable)
-#define MIN_FLOAT -2147483647
+#define MIN_FLOAT -2147483648
 #define MAX_FLOAT 2147483647
 
 FILE *yyin;
@@ -30,21 +29,15 @@ void validar_rango_float(char* str);
 /* Conjuntos */
 DIGITO [0-9]
 DIGITONOCERO [1-9]
-/*
-MINUS [a-z]
-MAYUS [A-Z]
-*/
 LETRA [a-zA-Z]
-PUNTO ["."]
+PUNTO "."
 
 /* Regex */
-OLD_CONST_REAL {DIGITO}+"."{DIGITO}+
-OLD_CONST_INT {DIGITO}+
+CONST_REAL  -?({DIGITO}*{PUNTO}{DIGITO}*|{DIGITO}+{PUNTO}{DIGITO}*)
+CONST_INT   (-?{DIGITONOCERO}{DIGITO}+)|0
+CONST_STR   \"[^"]*\"
+ID      {LETRA}({LETRA}|{DIGITO}|_)*
 
-CONST_REAL -?({DIGITO}*{PUNTO}{DIGITO}*|{DIGITO}+{PUNTO}{DIGITO}*)
-CONST_INT  (-?{DIGITONOCERO}{DIGITO}+)|0
-CONST_STR \"[^"]*\"
-ID {LETRA}({LETRA}|{DIGITO}|_)*
 
 /* Operadores */
 OP_ASIG ":="
@@ -58,9 +51,9 @@ OP_GT   ">"
 OP_GEQ  ">="
 OP_LT   "<"
 OP_LEQ  "<="
-OP_AND  "&&"
-OP_OR   "||"
-OP_NOT  "!"
+OP_AND  "AND"
+OP_OR   "OR"
+OP_NOT  "NOT"
 
 /* Caracteres */
 PAR_OP      "("
@@ -70,34 +63,76 @@ CORCHETE_CL  "]"
 LLAVE_OP    "{"
 LLAVE_CL    "}"
 COMA        ","
-COLON       ":"
-COMILLA     "\""
+DOSPUNTOS   ":"
 
 /* Palabras Reservadas */
-IF          "else"
-ELSE        "if"
-WHILE       "for"
-T_INT       "int"
-T_FLOAT     "float"
-T_STRING    "string"
+INIT                    "init"
+IF                      "si"
+ELSE                    "sino"
+WHILE                   "mientras"
+T_INT                   "Int"
+T_FLOAT                 "Float"
+T_STRING                "String"
+READ                    "leer"
+WRITE                   "escribir"
+GETPENULTIMATEPOSITION  "getPenultimatePosition"
+SUMALOSULTIMOS          "sumaLosUltimos"
 
 /* Comentarios */
-COMENTARIO "###"[^###]*"###"
+COMENTARIO "*-"[^-*]*"-*"
+COMENTARIO_ANIDADO  "*-"[^*-]*{COMENTARIO}[^-*]*"-*"
 
 %%
-"define"        {printf("\nDefine: %s\n", yytext);}
-"enddefine"     {printf("\nEndefine: %s\n", yytext); }
-":="            {printf("\nAsignacion: %s\n", yytext); }
-"+"             {printf("\nSuma: %s\n", yytext); }
-{ID}            {printf("\nIdentificador: %s\n", yytext); guardar_en_TS (); }
-{CONST_REAL}    {printf("\nConstante real: %s\n", yytext); }
-{CONST_INT}     {printf("\nConstante entera: %s\n", yytext);}
+{OP_ASIG}       {}
+{OP_ADD}        {}
+{OP_SUB}        {}
+{OP_MUL}        {}
+{OP_DIV}        {}
+{OP_EQ}         {}
+{OP_NEQ}        {}
+{OP_GT}         {}
+{OP_GEQ}        {}
+{OP_LT}         {}
+{OP_LEQ}        {}
+{OP_AND}        {}
+{OP_OR}         {}
+{OP_NOT}        {}
+{PAR_OP}        {}
+{PAR_CL}        {}
+{CORCHETE_OP}   {}
+{CORCHETE_CL}   {}
+{LLAVE_OP}      {}
+{LLAVE_CL}      {}
+{COMA}          {}
+{DOSPUNTOS}     {}
+{INIT}          {}
+{IF}            {}
+{ELSE}          {}
+{WHILE}         {}
+{T_INT}         {}
+{T_FLOAT}       {}
+{T_STRING}      {}
+{READ}          {}
+{WRITE}         {}
+{GETPENULTIMATEPOSITION}    {}
+{SUMALOSULTIMOS}            {}
 
-"\n"      		{mostrar_token_inutil(); }
-"\t"      		{mostrar_token_inutil(); }
-"\n\t"          {mostrar_token_inutil(); }
-" "             {mostrar_token_inutil(); }		
-"\r\n"      	{mostrar_token_inutil(); }
+
+{ID}                    {printf("\nIdentificador: %s\n", yytext); guardar_en_TS (); }
+{CONST_REAL}            {validar_rango_float(yytext); printf("\nConstante real: %s\n", yytext); guardar_en_TS ();}
+{CONST_INT}             {validar_rango_int(yytext); printf("\nConstante entera: %s\n", yytext); guardar_en_TS ();}
+{CONST_STR}             {validar_longitud_str(yytext); printf("\nConstante string: %s\n", yytext); guardar_en_TS ();}
+
+{COMENTARIO}            {printf("\nEsto es un comentario: %s\n", yytext);}
+{COMENTARIO_ANIDADO}    {printf("\nEsto es un comentario anidado: %s\n", yytext);}
+
+"\n"
+"\t"
+"\n\t"
+" "
+"\r\n"
+
+.                       {printf("\nHay un error aca: %s\n", yytext);}
 
 %%
 
@@ -105,7 +140,6 @@ int main(int argc,char *argv[])
 {
     if ((yyin = fopen(argv[1], "rt")) == NULL) {
         printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
-        
     }
 
     yylex();
@@ -113,7 +147,8 @@ int main(int argc,char *argv[])
 }
 
 void mostrar_token_inutil(){
-    printf("\nToken no procesable: %s\n", yytext);
+    //printf("\nToken no procesable: %s\n", yytext);
+    return;
 }
 
 void guardar_en_TS(){
@@ -122,7 +157,7 @@ void guardar_en_TS(){
 
 void validar_longitud_str(char* str){
     if(strlen(str) - 2 > MAX_STR_LEN) { // - 2 por las comillas
-        printf("\nERROR: String %s tiene longitud mayor a la permitida de %d\n", yytext, MAX_STR_LEN);
+        printf("\nERROR: String %s tiene longitud mayor a la permitida de %d caracteres\n", yytext, MAX_STR_LEN);
         exit(1);
     }
 }
