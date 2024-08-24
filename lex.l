@@ -2,12 +2,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include <string.h>
+
+
+#define MAX_ID_LEN 30
+#define MAX_STR_LEN 40
+#define MIN_INT -32767  //2^15 (1 para el signo) - 1 (el mayor número representable)
+#define MAX_INT 32767   //2^15 (1 para el signo) - 1 (el mayor número representable)
+#define MIN_FLOAT -2147483647
+#define MAX_FLOAT 2147483647
+
 FILE *yyin;
 int yylval;
 
-void guardar_en_TS();
 
+void guardar_en_TS();
 void mostrar_token_inutil();
+void validar_longitud(char* str);
+void validar_rango_int(char* str);
+void validar_rango_float(char* str);
 
 %}
 
@@ -58,6 +71,7 @@ LLAVE_OP    "{"
 LLAVE_CL    "}"
 COMA        ","
 COLON       ":"
+COMILLA     "\""
 
 /* Palabras Reservadas */
 IF          "else"
@@ -71,13 +85,13 @@ T_STRING    "string"
 COMENTARIO "###"[^###]*"###"
 
 %%
-"define"        {printf("\nDefine: %s\n", yytext); }
+"define"        {printf("\nDefine: %s\n", yytext);}
 "enddefine"     {printf("\nEndefine: %s\n", yytext); }
 ":="            {printf("\nAsignacion: %s\n", yytext); }
 "+"             {printf("\nSuma: %s\n", yytext); }
-{ID}            {printf("\nIdentificador: %s\n", yytext); guardar_en_TS ();}
+{ID}            {printf("\nIdentificador: %s\n", yytext); guardar_en_TS (); }
 {CONST_REAL}    {printf("\nConstante real: %s\n", yytext); }
-{CONST_INT}     {printf("\nConstante entera: %s\n", yytext); }
+{CONST_INT}     {printf("\nConstante entera: %s\n", yytext);}
 
 "\n"      		{mostrar_token_inutil(); }
 "\t"      		{mostrar_token_inutil(); }
@@ -86,15 +100,6 @@ COMENTARIO "###"[^###]*"###"
 "\r\n"      	{mostrar_token_inutil(); }
 
 %%
-
-void mostrar_token_inutil(){
-    printf("\nToken no procesable: %s\n", yytext);
-}
-
-void guardar_en_TS(){
-    printf("Guarda en TS");
-}
-
 
 int main(int argc,char *argv[])
 {
@@ -105,4 +110,35 @@ int main(int argc,char *argv[])
 
     yylex();
     fclose(yyin);
+}
+
+void mostrar_token_inutil(){
+    printf("\nToken no procesable: %s\n", yytext);
+}
+
+void guardar_en_TS(){
+    printf("Guarda en TS");
+}
+
+void validar_longitud(char* str){
+    if(strlen(str) - 2 > MAX_STR_LEN) { // - 2 por las comillas
+        printf("\nERROR: String %s tiene longitud mayor a la permitida de %d\n", yytext, MAX_STR_LEN);
+        exit(1);
+    }
+}
+
+void validar_rango_int(char* str){
+    int val = atoi(str);
+    if(val < MIN_INT || val > MAX_INT){
+        printf("\nERROR: Constante entera %s fuera de rango\n", yytext);
+        exit(1);
+    }
+}
+
+void validar_rango_float(char* str){
+    float val = atof(str);
+    if(val < MIN_FLOAT || val > MAX_FLOAT){
+        printf("\nERROR: Constante flotante %s fuera de rango\n", yytext);
+        exit(1);
+    }
 }
