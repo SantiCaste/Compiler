@@ -18,7 +18,7 @@ int yylval;
 
 void guardar_en_TS();
 void mostrar_token_inutil();
-void validar_longitud(char* str);
+void validar_longitud_str(char* str);
 void validar_rango_int(char* str);
 void validar_rango_float(char* str);
 
@@ -120,7 +120,7 @@ void guardar_en_TS(){
     printf("Guarda en TS");
 }
 
-void validar_longitud(char* str){
+void validar_longitud_str(char* str){
     if(strlen(str) - 2 > MAX_STR_LEN) { // - 2 por las comillas
         printf("\nERROR: String %s tiene longitud mayor a la permitida de %d\n", yytext, MAX_STR_LEN);
         exit(1);
