@@ -58,9 +58,9 @@ OP_GT   ">"
 OP_GEQ  ">="
 OP_LT   "<"
 OP_LEQ  "<="
-OP_AND  "&&"
-OP_OR   "||"
-OP_NOT  "!"
+OP_AND  "AND"
+OP_OR   "OR"
+OP_NOT  "NOT"
 
 /* Caracteres */
 PAR_OP      "("
@@ -74,15 +74,18 @@ COLON       ":"
 COMILLA     "\""
 
 /* Palabras Reservadas */
-IF          "else"
-ELSE        "if"
-WHILE       "for"
-T_INT       "int"
-T_FLOAT     "float"
-T_STRING    "string"
+INIT        "init"
+IF          "si"
+ELSE        "sino"
+WHILE       "mientras"
+T_INT       "Int"
+T_FLOAT     "Float"
+T_STRING    "String"
+READ        "leer"
+WRITE       "escribir"
 
 /* Comentarios */
-COMENTARIO "###"[^###]*"###"
+COMENTARIO "*-"[^###]*"-*"
 
 %%
 "define"        {printf("\nDefine: %s\n", yytext);}
@@ -98,6 +101,7 @@ COMENTARIO "###"[^###]*"###"
 "\n\t"          {mostrar_token_inutil(); }
 " "             {mostrar_token_inutil(); }		
 "\r\n"      	{mostrar_token_inutil(); }
+{COMENTARIO}    {printf("\nEsto es un comentario: %s\n", yytext);}
 
 %%
 
@@ -105,7 +109,6 @@ int main(int argc,char *argv[])
 {
     if ((yyin = fopen(argv[1], "rt")) == NULL) {
         printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
-        
     }
 
     yylex();
