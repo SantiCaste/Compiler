@@ -20,7 +20,7 @@ void mostrar_token_inutil();
 void validar_longitud_str(char* str);
 void validar_rango_int(char* str);
 void validar_rango_float(char* str);
-
+void handleErr(char* str);
 %}
 
 %option noyywrap
@@ -132,7 +132,7 @@ COMENTARIO_ANIDADO  "*-"[^*-]*{COMENTARIO}[^-*]*"-*"
 " "
 "\r\n"
 
-.                       {printf("\nHay un error aca: %s\n", yytext);}
+.                       {handleErr(yytext);}
 
 %%
 
@@ -176,4 +176,8 @@ void validar_rango_float(char* str){
         printf("\nERROR: Constante flotante %s fuera de rango\n", yytext);
         exit(1);
     }
+}
+
+void handleErr(char* str){
+    printf("\nCaracter inesperado: %s\n", yytext);
 }
