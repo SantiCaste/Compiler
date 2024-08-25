@@ -59,7 +59,6 @@ int yylex();
 condicional:
     IF PAR_OP condicion PAR_CL
     |PAR_OP condicion operador_logico condicion PAR_CL
-    |PAR_OP condicion operador_logico condicion PAR_CL
     |PAR_OP OP_NOT condicion PAR_CL
 
 operador_logico:
@@ -86,3 +85,21 @@ comparador:
     
 
 %%
+
+int main(int argc, char *argv[])
+{
+    if((yyin = fopen(argv[1], "rt")) == NULL){
+        printf("\nNo se puede abrir el archivo de prueba: %s\n", argv[1]);
+    } else{ 
+        yyparse();
+    }
+	
+    fclose(yyin);
+    return 0;
+}
+
+int yyerror(void)
+{
+    printf("Error Sintactico\n");
+    exit (1);
+}

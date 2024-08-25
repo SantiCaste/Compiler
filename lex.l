@@ -137,6 +137,7 @@ COMENTARIO_ANIDADO  "*-"[^*-]*{COMENTARIO}[^-*]*"-*"
 
 %%
 
+/*
 int main(int argc,char *argv[])
 {
     if ((yyin = fopen(argv[1], "rt")) == NULL) {
@@ -148,6 +149,7 @@ int main(int argc,char *argv[])
 
     printf("la lista vale: %p", lista_ts);
 }
+*/
 
 void guardar_en_TS(){
     printf("Guarda en TS");
