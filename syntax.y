@@ -63,8 +63,8 @@ condicional:
     |PAR_OP OP_NOT condicion PAR_CL
 
 operador_logico:
-    AND
-    |OR
+    OP_AND
+    |OP_OR
 
 condicion:
     ID comparador ID
