@@ -7,7 +7,8 @@ MAKEFLAGS += --no-print-directory
 compile:
 	@echo compiling lexer and executable compiler
 	@flex lex.l
-	@gcc.exe lex.yy.c -o $(COMPILER_FILE)
+	@bison -dyv syntax.y
+	@gcc.exe lex.yy.c y.tab.c -o $(COMPILER_FILE)
 	@echo compilation finished
 
 #run the compiler:
