@@ -17,4 +17,4 @@ run:
 	@.\$(COMPILER_FILE) $(TEST_PROGRAM)
 
 clean:
-	@del lex.yy.c compiler.exe 
+	@del lex.yy.c y.tab.c y.tab.h y.output compiler.exe 
