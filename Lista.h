@@ -21,8 +21,6 @@ typedef t_nodo *t_lista;
 
 void crearLista(t_lista *l);
 
-void chiche();
-
 int insertarFinalLista(t_lista *l, t_lexema lex);
 
 int sacarPrimeroLista(t_lista *l, t_lexema *lex);

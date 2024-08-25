@@ -110,7 +110,3 @@ void duplicarLista( t_lista *dirListaOriginal, t_lista *dirListaDuplicado )
         dirListaOriginal= &((*dirListaOriginal)->sig);
     }
 }
-
-void chiche(){
-    printf("the chaich");
-}
