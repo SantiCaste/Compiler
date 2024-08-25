@@ -6,7 +6,6 @@
 #include "lista.h"
 #include "y.tab.h"
 
-int yystopparser=0;
 FILE *yyin;
 
 int yyerror();
@@ -54,35 +53,62 @@ int yylex();
 %token COMENTARIO
 %token COMENTARIO_ANIDADO
 
+/* START SYMBOL */
+%start inicio
+
 %%
 
+inicio: programa
+;
+
+programa: bloque
+;
+
+bloque: bloque sentencia
+    | sentencia
+;
+
+sentencia:
+    condicional
+    |ciclo
+;
+
+ciclo: //TODO: corregir esto y lo mismo para condicional, separar en otra regla que sea condición o algo de eso
+    WHILE PAR_OP condicion PAR_CL LLAVE_OP bloque LLAVE_CL
+    |WHILE PAR_OP condicion operador_logico condicion PAR_CL LLAVE_OP bloque LLAVE_CL
+    |WHILE PAR_OP OP_NOT condicion PAR_CL LLAVE_OP bloque LLAVE_CL
+;
+
 condicional:
-    IF PAR_OP condicion PAR_CL
-    |PAR_OP condicion operador_logico condicion PAR_CL
-    |PAR_OP OP_NOT condicion PAR_CL
+    IF PAR_OP condicion PAR_CL LLAVE_OP bloque LLAVE_CL {printf("\nentra en el de 1 condicion");}
+    |IF PAR_OP condicion operador_logico condicion PAR_CL LLAVE_OP bloque LLAVE_CL{printf("\nentra en el de 2 condiciones");}
+    |IF PAR_OP OP_NOT condicion PAR_CL LLAVE_OP bloque LLAVE_CL{printf("\nentra en el de 1 condicion negada");}
+;
 
 operador_logico:
     OP_AND
     |OP_OR
+;
 
 condicion:
-    ID comparador ID
-    |ID comparador CONST_INT
-    |ID comparador CONST_REAL
-    |ID comparador CONST_STR
-    |CONST_STR comparador ID
-    |CONST_INT comparador ID
-    |CONST_REAL comparador ID
-    |CONST_INT comparador CONST_INT
+    |ID comparador ID            {printf("\nCondición: %s %s %s", $1, $2, $3);}
+    |ID comparador CONST_INT    {printf("\nCondición: %s %s %s", $1, $2, $3);}
+    |ID comparador CONST_REAL   {printf("\nCondición: %s %s %s", $1, $2, $3);}
+    |ID comparador CONST_STR    {printf("\nCondición: %s %s %s", $1, $2, $3);}
+    |CONST_STR comparador ID    {printf("\nCondición: %s %s %s", $1, $2, $3);}
+    |CONST_INT comparador ID    {printf("\nCondición: %s %s %s", $1, $2, $3);}
+    |CONST_REAL comparador ID   {printf("\nCondición: %s %s %s", $1, $2, $3);}
+    |CONST_INT comparador CONST_INT {printf("\nCondición: %s %s %s", $1, $2, $3);}
+;
 
 comparador:
-    OP_EQ
-    |OP_NEQ
-    |OP_GT
-    |OP_GEQ
-    |OP_LT
-    |OP_LEQ
-    
+    OP_EQ       {printf("\nEl operador es: %s", $1);}
+    |OP_NEQ     {printf("\nEl operador es: %s", $1);}
+    |OP_GT      {printf("\nEl operador es: %s", $1);}
+    |OP_GEQ     {printf("\nEl operador es: %s", $1);}
+    |OP_LT      {printf("\nEl operador es: %s", $1);}
+    |OP_LEQ     {printf("\nEl operador es: %s", $1);}
+;    
 
 %%
 
@@ -98,8 +124,8 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-int yyerror(void)
+int yyerror()
 {
-    printf("Error Sintactico\n");
+    printf("\nError Sintactico\n");
     exit (1);
 }

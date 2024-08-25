@@ -1,3 +1,2 @@
-*- test comment -*
-a := 4343.
-*- hola *-comentario por dentro-* chau-*
+si(j < 3)
+mientras

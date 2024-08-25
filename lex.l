@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <string.h>
-
-#include "Lista.h"
+#include "y.tab.h"
 
 #define MAX_STR_LEN 40
 #define MIN_INT -32768  //2^15 (1 para el signo) - 1 (el mayor número representable)
@@ -12,9 +11,6 @@
 #define MIN_FLOAT -2147483648
 #define MAX_FLOAT 2147483647
 
-FILE *yyin;
-int yylval;
-t_lista lista_ts;
 
 void guardar_en_TS();
 void mostrar_token_inutil();
@@ -25,7 +21,7 @@ void handleErr(char* str);
 %}
 
 %option noyywrap
-%option yylineno 
+%option yylineno
 
 /* Conjuntos */
 DIGITO [0-9]
@@ -35,7 +31,7 @@ PUNTO "."
 
 /* Regex */
 CONST_REAL  -?({DIGITO}*{PUNTO}{DIGITO}*|{DIGITO}+{PUNTO}{DIGITO}*)
-CONST_INT   (-?{DIGITONOCERO}{DIGITO}+)|0
+CONST_INT   (-?{DIGITONOCERO}{DIGITO}*)|0
 CONST_STR   \"[^"]*\"
 ID      {LETRA}({LETRA}|{DIGITO}|_)*
 
@@ -119,15 +115,15 @@ COMENTARIO_ANIDADO  "*-"[^*-]*{COMENTARIO}[^-*]*"-*"
 {SUMALOSULTIMOS}            {return SUMALOSULTIMOS;}
 
 
-{ID}                    {printf("\nIdentificador: %s\n", yytext); guardar_en_TS (); return ID;}
-{CONST_REAL}            {validar_rango_float(yytext); printf("\nConstante real: %s\n", yytext); guardar_en_TS (); return CONST_REAL;}
-{CONST_INT}             {validar_rango_int(yytext); printf("\nConstante entera: %s\n", yytext); guardar_en_TS (); return CONST_INT;}
-{CONST_STR}             {validar_longitud_str(yytext); printf("\nConstante string: %s\n", yytext); guardar_en_TS (); return CONST_STR;}
+{ID}                    {return ID;}
+{CONST_REAL}            {validar_rango_float(yytext); return CONST_REAL;}
+{CONST_INT}             {validar_rango_int(yytext); return CONST_INT;}
+{CONST_STR}             {validar_longitud_str(yytext); return CONST_STR;}
 
-{COMENTARIO}            {printf("\nEsto es un comentario: %s\n", yytext);}
-{COMENTARIO_ANIDADO}    {printf("\nEsto es un comentario anidado: %s\n", yytext);}
+{COMENTARIO}
+{COMENTARIO_ANIDADO}
 
-"\n"
+"\n"                    {printf("salto de linea");}
 "\t"
 "\n\t"
 " "
