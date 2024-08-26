@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <string.h>
-#include "lista.h"
+#include "Lista.h"
 #include "y.tab.h"
 
 FILE *yyin;
@@ -13,10 +13,15 @@ int yylex();
 
 %}
 
-%token CONST_REAL
-%token CONST_INT
-%token CONST_STR
-%token ID
+%union {
+	char str_val[400];
+}
+
+%token <str_val> CONST_REAL
+%token <str_val> CONST_INT
+%token <str_val> CONST_STR
+%token <str_val> ID
+
 %token OP_ASIG
 %token OP_ADD
 %token OP_SUB
@@ -28,6 +33,7 @@ int yylex();
 %token OP_GEQ
 %token OP_LT
 %token OP_LEQ
+
 %token OP_AND
 %token OP_OR
 %token OP_NOT
@@ -121,23 +127,23 @@ operador_logico:
 ;
 
 condicion:
-    ID comparador ID            {printf("\nCondición: %s %s %s", $1, $2, $3);}
-    |ID comparador CONST_INT    {printf("\nCondición: %s %s %s", $1, $2, $3);}
-    |ID comparador CONST_REAL   {printf("\nCondición: %s %s %s", $1, $2, $3);}
-    |ID comparador CONST_STR    {printf("\nCondición: %s %s %s", $1, $2, $3);}
-    |CONST_STR comparador ID    {printf("\nCondición: %s %s %s", $1, $2, $3);}
-    |CONST_INT comparador ID    {printf("\nCondición: %s %s %s", $1, $2, $3);}
-    |CONST_REAL comparador ID   {printf("\nCondición: %s %s %s", $1, $2, $3);}
-    |CONST_INT comparador CONST_INT {printf("\nCondición: %s %s %s", $1, $2, $3);}
+    ID comparador ID            {printf("\nCondicion: %s", $1);}
+    |ID comparador CONST_INT    {printf("\nCondicion entera: %s", $3);}
+    |ID comparador CONST_REAL   {printf("\nCondicion: %s %s", $1, $3);}
+    |ID comparador CONST_STR    {printf("\nCondicion: %s %s", $1, $3);}
+    |CONST_STR comparador ID    {printf("\nCondicion: %s %s", $1, $3);}
+    |CONST_INT comparador ID    {printf("\nCondicion: %s %s", $1, $3);}
+    |CONST_REAL comparador ID   {printf("\nCondicion: %s %s", $1, $3);}
+    |CONST_INT comparador CONST_INT {printf("\nCondicion: %s %s", $1, $3);}
 ;
 
 comparador:
-    OP_EQ       {printf("\nEl operador es: %s", $1);}
-    |OP_NEQ     {printf("\nEl operador es: %s", $1);}
-    |OP_GT      {printf("\nEl operador es: %s", $1);}
-    |OP_GEQ     {printf("\nEl operador es: %s", $1);}
-    |OP_LT      {printf("\nEl operador es: %s", $1);}
-    |OP_LEQ     {printf("\nEl operador es: %s", $1);}
+    OP_EQ      
+    |OP_NEQ    
+    |OP_GT     
+    |OP_GEQ    
+    |OP_LT     
+    |OP_LEQ    
 ;    
 
 %%
