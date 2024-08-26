@@ -4,7 +4,6 @@
 #include <conio.h>
 #include <string.h>
 #include "Lista.h"
-#include "y.tab.h"
 
 FILE *yyin;
 
@@ -99,10 +98,10 @@ condicional:
 ;
 
 asignacion:
-    ID OP_ASIG CONST_INT
-    |ID OP_ASIG CONST_REAL
-    |ID OP_ASIG CONST_STR
-    |ID OP_ASIG ID
+    ID OP_ASIG CONST_INT        {printf("\nAsignacion de entero: %s := %s", $1, $3);}
+    |ID OP_ASIG CONST_REAL      {printf("\nAsignacion de float: %s := %s", $1, $3);}
+    |ID OP_ASIG CONST_STR       {printf("\nAsignacion de string: %s := %s", $1, $3);}
+    |ID OP_ASIG ID              {printf("\nAsignacion entre variables: %s := %s", $1, $3);}
 ;
 
 leer:

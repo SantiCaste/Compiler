@@ -18,6 +18,8 @@ void validar_longitud_str(char* str);
 void validar_rango_int(char* str);
 void validar_rango_float(char* str);
 void handleErr(char* str);
+void copiarLexema(char* nombre);
+
 %}
 
 %option noyywrap
@@ -115,15 +117,15 @@ COMENTARIO_ANIDADO  "*-"[^*-]*{COMENTARIO}[^-*]*"-*"
 {SUMALOSULTIMOS}            {return SUMALOSULTIMOS;}
 
 
-{ID}                    {return ID;}
-{CONST_REAL}            {validar_rango_float(yytext); return CONST_REAL;}
-{CONST_INT}             {validar_rango_int(yytext); return CONST_INT;}
-{CONST_STR}             {validar_longitud_str(yytext); return CONST_STR;}
+{ID}                    {copiarLexema(yytext); return ID;}
+{CONST_REAL}            {validar_rango_float(yytext); copiarLexema(yytext); return CONST_REAL;}
+{CONST_INT}             {validar_rango_int(yytext); copiarLexema(yytext); return CONST_INT;}
+{CONST_STR}             {validar_longitud_str(yytext); copiarLexema(yytext); return CONST_STR;}
 
 {COMENTARIO}
 {COMENTARIO_ANIDADO}
 
-"\n"                    {printf("salto de linea");}
+"\n"
 "\t"
 "\n\t"
 " "
@@ -176,4 +178,8 @@ void validar_rango_float(char* str){
 
 void handleErr(char* str){
     printf("\nCaracter inesperado: %s\n", yytext);
+}
+
+void copiarLexema(char* nombre){
+    strcpy(yylval.str_val, nombre);
 }
