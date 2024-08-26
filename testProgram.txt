@@ -1,2 +1,2 @@
 si(j < 3)
-mientras
+{x := 6}

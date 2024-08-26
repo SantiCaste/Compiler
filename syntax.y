@@ -57,20 +57,27 @@ int yylex();
 %start inicio
 
 %%
-
-inicio: programa
+inicio: 
+    programa
 ;
 
-programa: bloque
+programa:
+    bloque
 ;
 
-bloque: bloque sentencia
-    | sentencia
+bloque:
+    bloque sentencia
+    |sentencia
 ;
 
 sentencia:
     condicional
     |ciclo
+    |asignacion
+    |leer
+    |escribir
+    |getPenultimatePosition
+    |sumaLosUltimos
 ;
 
 ciclo: //TODO: corregir esto y lo mismo para condicional, separar en otra regla que sea condición o algo de eso
@@ -85,13 +92,36 @@ condicional:
     |IF PAR_OP OP_NOT condicion PAR_CL LLAVE_OP bloque LLAVE_CL{printf("\nentra en el de 1 condicion negada");}
 ;
 
+asignacion:
+    ID OP_ASIG CONST_INT
+    |ID OP_ASIG CONST_REAL
+    |ID OP_ASIG CONST_STR
+    |ID OP_ASIG ID
+;
+
+leer:
+    OP_ADD
+;
+
+escribir:
+    OP_SUB
+;
+
+getPenultimatePosition:
+    OP_ASIG
+;
+
+sumaLosUltimos:
+    OP_EQ
+;
+
 operador_logico:
     OP_AND
     |OP_OR
 ;
 
 condicion:
-    |ID comparador ID            {printf("\nCondición: %s %s %s", $1, $2, $3);}
+    ID comparador ID            {printf("\nCondición: %s %s %s", $1, $2, $3);}
     |ID comparador CONST_INT    {printf("\nCondición: %s %s %s", $1, $2, $3);}
     |ID comparador CONST_REAL   {printf("\nCondición: %s %s %s", $1, $2, $3);}
     |ID comparador CONST_STR    {printf("\nCondición: %s %s %s", $1, $2, $3);}
