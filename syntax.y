@@ -64,7 +64,7 @@ int yylex();
 
 %%
 inicio: 
-    programa        {printf("the bluetooth is connected succesfuley");}
+    programa        {printf("\nThe bluetooth is connected succesfuley\n");}
 ;
 
 programa:
@@ -122,7 +122,7 @@ condicional:
     |OP_NOT condicion
 ;
 
-condicion: //TODO: ver de manejar constantes string también (No lo hacemos)
+condicion:
     expresion comparador expresion
 ;
 
@@ -159,7 +159,7 @@ termino:
 ;
 
 factor:
-    ID                          {printf("factor: %s", $1);}
+    ID                          {printf("\nfactor: %s", $1);}
     |CONST_INT
     |CONST_REAL
     |PAR_OP expresion PAR_CL
@@ -171,7 +171,7 @@ leer:
 
 escribir:
     WRITE PAR_OP expresion PAR_CL
-    |WRITE PAR_OP CONST_STR PAR_CL
+    |WRITE PAR_OP CONST_STR PAR_CL      {printf("\nimprime const str: %s", $3);}
 ;
 
 funcion_especial:

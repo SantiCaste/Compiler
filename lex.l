@@ -34,7 +34,7 @@ PUNTO "."
 /* Regex */
 CONST_REAL  -?({DIGITO}*{PUNTO}{DIGITO}*|{DIGITO}+{PUNTO}{DIGITO}*)
 CONST_INT   (-?{DIGITONOCERO}{DIGITO}*)|0
-CONST_STR   \"[^"]*\"
+CONST_STR   \"[^\"]*\"
 ID      {LETRA}({LETRA}|{DIGITO}|_)*
 
 
@@ -69,7 +69,7 @@ PUNTOYCOMA  ";"
 INIT                    "init"
 IF                      "si"
 ELSE                    "sino"
-WHILE                   "mientras"
+WHILE                   "while"
 T_INT                   "Int"
 T_FLOAT                 "Float"
 T_STRING                "String"
