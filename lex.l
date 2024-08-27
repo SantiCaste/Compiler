@@ -63,6 +63,7 @@ LLAVE_OP    "{"
 LLAVE_CL    "}"
 COMA        ","
 DOSPUNTOS   ":"
+PUNTOYCOMA  ";"
 
 /* Palabras Reservadas */
 INIT                    "init"

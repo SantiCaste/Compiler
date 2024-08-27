@@ -44,6 +44,7 @@ int yylex();
 %token LLAVE_CL
 %token COMA
 %token DOSPUNTOS
+%token PUNTOYCOMA
 %token INIT
 %token IF
 %token ELSE
@@ -63,11 +64,13 @@ int yylex();
 
 %%
 inicio: 
-    programa
+    programa        {printf("the bluetooth is connected succesfuley");}
 ;
 
 programa:
-    bloque
+    init
+    |init bloque
+    |bloque
 ;
 
 bloque:
@@ -76,74 +79,116 @@ bloque:
 ;
 
 sentencia:
-    condicional
-    |ciclo
+    struct_condicional
     |asignacion
     |leer
     |escribir
-    |getPenultimatePosition
-    |sumaLosUltimos
+    |funcion_especial
 ;
 
-ciclo: //TODO: corregir esto y lo mismo para condicional, separar en otra regla que sea condición o algo de eso
-    WHILE PAR_OP condicion PAR_CL LLAVE_OP bloque LLAVE_CL
-    |WHILE PAR_OP condicion operador_logico condicion PAR_CL LLAVE_OP bloque LLAVE_CL
-    |WHILE PAR_OP OP_NOT condicion PAR_CL LLAVE_OP bloque LLAVE_CL
+init:
+    INIT LLAVE_OP declaraciones LLAVE_CL
+;
+
+declaraciones:
+    declaraciones declaracion
+    |declaracion
+;
+
+declaracion:
+    lista_ids DOSPUNTOS tipo_dato
+;
+
+lista_ids:
+    lista_ids COMA ID
+    |ID
+;
+
+tipo_dato:
+    T_STRING
+    |T_FLOAT
+    |T_INT
+;
+
+struct_condicional:
+    IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL ELSE LLAVE_OP bloque LLAVE_CL
+    |IF PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL
+    |WHILE PAR_OP condicional PAR_CL LLAVE_OP bloque LLAVE_CL
 ;
 
 condicional:
-    IF PAR_OP condicion PAR_CL LLAVE_OP bloque LLAVE_CL {printf("\nentra en el de 1 condicion");}
-    |IF PAR_OP condicion operador_logico condicion PAR_CL LLAVE_OP bloque LLAVE_CL{printf("\nentra en el de 2 condiciones");}
-    |IF PAR_OP OP_NOT condicion PAR_CL LLAVE_OP bloque LLAVE_CL{printf("\nentra en el de 1 condicion negada");}
+    condicion
+    |condicion operador_logico condicion
+    |OP_NOT condicion
 ;
 
-asignacion:
-    ID OP_ASIG CONST_INT        {printf("\nAsignacion de entero: %s := %s", $1, $3);}
-    |ID OP_ASIG CONST_REAL      {printf("\nAsignacion de float: %s := %s", $1, $3);}
-    |ID OP_ASIG CONST_STR       {printf("\nAsignacion de string: %s := %s", $1, $3);}
-    |ID OP_ASIG ID              {printf("\nAsignacion entre variables: %s := %s", $1, $3);}
+condicion: //TODO: ver de manejar constantes string también (No lo hacemos)
+    expresion comparador expresion
 ;
 
-leer:
-    OP_ADD
-;
-
-escribir:
-    OP_SUB
-;
-
-getPenultimatePosition:
-    OP_ASIG
-;
-
-sumaLosUltimos:
+comparador:
     OP_EQ
-;
+    |OP_NEQ
+    |OP_GT
+    |OP_GEQ
+    |OP_LT
+    |OP_LEQ
+;    
 
 operador_logico:
     OP_AND
     |OP_OR
 ;
 
-condicion:
-    ID comparador ID            {printf("\nCondicion: %s", $1);}
-    |ID comparador CONST_INT    {printf("\nCondicion entera: %s", $3);}
-    |ID comparador CONST_REAL   {printf("\nCondicion: %s %s", $1, $3);}
-    |ID comparador CONST_STR    {printf("\nCondicion: %s %s", $1, $3);}
-    |CONST_STR comparador ID    {printf("\nCondicion: %s %s", $1, $3);}
-    |CONST_INT comparador ID    {printf("\nCondicion: %s %s", $1, $3);}
-    |CONST_REAL comparador ID   {printf("\nCondicion: %s %s", $1, $3);}
-    |CONST_INT comparador CONST_INT {printf("\nCondicion: %s %s", $1, $3);}
+asignacion:
+    ID OP_ASIG expresion
+    |ID OP_ASIG CONST_STR
+    |ID OP_ASIG funcion_especial
 ;
 
-comparador:
-    OP_EQ      
-    |OP_NEQ    
-    |OP_GT     
-    |OP_GEQ    
-    |OP_LT     
-    |OP_LEQ    
-;    
+expresion:
+    expresion OP_ADD termino
+    |expresion OP_SUB termino
+    |termino
+;
+
+termino:
+    termino OP_MUL factor
+    |termino OP_DIV factor
+    |factor
+;
+
+factor:
+    ID                          {printf("factor: %s", $1);}
+    |CONST_INT
+    |CONST_REAL
+    |PAR_OP expresion PAR_CL
+;
+
+leer:
+    READ PAR_OP ID PAR_CL
+;
+
+escribir:
+    WRITE PAR_OP expresion PAR_CL
+    |WRITE PAR_OP CONST_STR PAR_CL
+;
+
+funcion_especial:
+    ID OP_EQ nombre_funcion PAR_OP CONST_INT PUNTOYCOMA CORCHETE_OP lista_const CORCHETE_CL PAR_CL
+;
+
+nombre_funcion:
+    GETPENULTIMATEPOSITION
+    |SUMALOSULTIMOS
+;
+
+lista_const:
+    lista_const COMA CONST_REAL
+    |lista_const COMA CONST_INT
+    |CONST_INT
+    |CONST_REAL
+;
 
 %%
 
