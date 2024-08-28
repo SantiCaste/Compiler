@@ -194,6 +194,10 @@ lista_const:
 
 int main(int argc, char *argv[])
 {
+
+    t_lista lista_simbolos;
+    crearLista(&lista_simbolos);
+
     if((yyin = fopen(argv[1], "rt")) == NULL){
         printf("\nNo se puede abrir el archivo de prueba: %s\n", argv[1]);
     } else{ 

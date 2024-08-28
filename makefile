@@ -8,7 +8,7 @@ compile:
 	@echo compiling lexer and executable compiler
 	@flex lex.l
 	@bison -dyv syntax.y
-	@gcc.exe lex.yy.c y.tab.c -o $(COMPILER_FILE)
+	@gcc.exe lex.yy.c y.tab.c lista.c -o $(COMPILER_FILE)
 	@echo compilation finished
 
 #run the compiler:
