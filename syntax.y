@@ -6,9 +6,14 @@
 #include "Lista.h"
 
 FILE *yyin;
+FILE *ts;
 
 int yyerror();
 int yylex();
+void guardar_TS();
+
+char* tabla_simbolos = "symbols.txt";
+t_lista lista_simbolos;
 
 %}
 
@@ -64,7 +69,7 @@ int yylex();
 
 %%
 inicio: 
-    programa        {printf("\nThe bluetooth is connected succesfuley\n");}
+    programa        {printf("\nThe bluetooth is connected succesfuley\n");guardar_TS();}
 ;
 
 programa:
@@ -194,8 +199,6 @@ lista_const:
 
 int main(int argc, char *argv[])
 {
-
-    t_lista lista_simbolos;
     crearLista(&lista_simbolos);
 
     if((yyin = fopen(argv[1], "rt")) == NULL){
@@ -212,4 +215,23 @@ int yyerror()
 {
     printf("\nError Sintactico\n");
     exit (1);
+}
+
+void guardar_TS(){
+    ts = fopen(tabla_simbolos, "wt");
+    if (ts == NULL) {
+        printf("\nError al intentar guardar en la tabla de simbolos");
+        return;
+    }
+
+    t_lexema lex;
+
+    fprintf(ts, "NOMBRE|TIPO|VALOR|LONGITUD\n");
+    while(sacarPrimeroLista(&lista_simbolos, &lex)) {
+        fprintf(ts, "%s|%s|%s|%s\n", lex.nombre, lex.tipoDato, lex.valor, lex.longitud);
+    }
+
+    fclose(ts);
+
+    return;
 }

@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <string.h>
 #include "y.tab.h"
+#include "Lista.h"
 
 #define MAX_STR_LEN 40
 #define MIN_INT -32768  //2^15 (1 para el signo) - 1 (el mayor número representable)
@@ -11,6 +12,13 @@
 #define MIN_FLOAT -2147483648
 #define MAX_FLOAT 2147483647
 
+enum tipoLex
+{
+    id,
+    constInt,
+    constFlt,
+    constStr
+};
 
 void guardar_en_TS();
 void mostrar_token_inutil();
@@ -19,6 +27,10 @@ void validar_rango_int(char* str);
 void validar_rango_float(char* str);
 void handleErr(char* str);
 void copiarLexema(char* nombre);
+
+void agregar_a_TS(char* lex, enum tipoLex tipo);
+
+extern t_lista lista_simbolos;
 
 %}
 
@@ -118,10 +130,10 @@ COMENTARIO_ANIDADO  "*-"[^*-]*{COMENTARIO}[^-*]*"-*"
 {SUMALOSULTIMOS}            {return SUMALOSULTIMOS;}
 
 
-{ID}                    {copiarLexema(yytext); return ID;}
-{CONST_REAL}            {validar_rango_float(yytext); copiarLexema(yytext); return CONST_REAL;}
-{CONST_INT}             {validar_rango_int(yytext); copiarLexema(yytext); return CONST_INT;}
-{CONST_STR}             {validar_longitud_str(yytext); copiarLexema(yytext); return CONST_STR;}
+{ID}                    {copiarLexema(yytext); agregar_a_TS(yytext, id); return ID;}
+{CONST_REAL}            {validar_rango_float(yytext); copiarLexema(yytext); agregar_a_TS(yytext, constFlt); return CONST_REAL;}
+{CONST_INT}             {validar_rango_int(yytext); copiarLexema(yytext); agregar_a_TS(yytext, constInt); return CONST_INT;}
+{CONST_STR}             {validar_longitud_str(yytext); copiarLexema(yytext); agregar_a_TS(yytext, constStr); return CONST_STR;}
 
 {COMENTARIO}
 {COMENTARIO_ANIDADO}
@@ -183,4 +195,49 @@ void handleErr(char* str){
 
 void copiarLexema(char* nombre){
     strcpy(yylval.str_val, nombre);
+}
+
+void agregar_a_TS(char* lex, enum tipoLex tipo){
+    t_lexema lexema;
+
+    //printf("\nlex tiene: %s, y tipo es: %d", lex, tipo);
+    //char stringSinComillas[100];
+    //strcpy(stringSinComillas, "");
+
+    switch (tipo) {
+        case constInt:
+            strcpy(lexema.valor, lex);
+            strcpy(lexema.tipoDato, "int");
+            strcpy(lexema.longitud, "0");
+            strcpy(lexema.nombre, "_");
+            strcat(lexema.nombre, lex);
+            break;        
+        case constFlt:
+            strcpy(lexema.valor, lex);
+            strcpy(lexema.tipoDato, "float");
+            strcpy(lexema.longitud, "0");
+            strcpy(lexema.nombre, "_");
+            strcat(lexema.nombre, lex);
+            break;
+        case constStr:
+            //strncpy(stringSinComillas, lex+1, strlen(lex) - 2);
+            //strcat(stringSinComillas, "\0");
+
+            strcpy(lexema.valor, lex);
+            strcpy(lexema.tipoDato, "string");
+            itoa(strlen(lex), lexema.longitud, 10);
+            strcpy(lexema.nombre, "_");
+            strcat(lexema.nombre, lex);
+            break;
+        case id:
+            strcpy(lexema.nombre, lex);
+            strcpy(lexema.valor, "");
+            strcpy(lexema.tipoDato, "");
+            strcpy(lexema.longitud, "");
+            break;
+    }
+
+    //printf("\nSe va a insertar en la lista: (%s, %s, %s, %s)", lexema.nombre, lexema.tipoDato, lexema.valor, lexema.longitud);
+
+    insertarFinalLista(&lista_simbolos, lexema);
 }
