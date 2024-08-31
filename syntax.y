@@ -170,12 +170,12 @@ termino:
 ;
 
 factor:
-    ID                          {printf("\nElemento: %s", $1);}
+    ID                                                      {printf("\nElemento: %s", $1);}
     |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO      {printf("\nMenos unario a (-expresion)");}
     |OP_SUB ID %prec MENOS_UNARIO                           {printf("\nMenos unario: - %s", $2);}
-    |CONST_INT                  {printf("\nInt: %s", $1);}
-    |CONST_REAL                 {printf("\nFloat: %s", $1);}
-    |PAR_OP expresion PAR_CL    {printf("\nExpresion ()");}
+    |CONST_INT                                              {printf("\nInt: %s", $1);}
+    |CONST_REAL                                             {printf("\nFloat: %s", $1);}
+    |PAR_OP expresion PAR_CL                                {printf("\nExpresion ()");}
 ;
 
 leer:

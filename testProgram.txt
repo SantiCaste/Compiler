@@ -2,6 +2,10 @@
 
 *- *- comment anidado -* -*
 
+*- *- *- anidado 3 -* -* -*
+
+*- anidado raro -* -*
+
 init {
     x, z, a, b, c, var_entera : Int
     variable1, var_flotante : Float
