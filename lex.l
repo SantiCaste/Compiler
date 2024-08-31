@@ -80,7 +80,7 @@ PUNTOYCOMA  ";"
 INIT                    "init"
 IF                      "si"
 ELSE                    "sino"
-WHILE                   "while"
+WHILE                   "mientras"
 T_INT                   "Int"
 T_FLOAT                 "Float"
 T_STRING                "String"
@@ -90,8 +90,8 @@ GETPENULTIMATEPOSITION  "getPenultimatePosition"
 SUMALOSULTIMOS          "sumaLosUltimos"
 
 /* Comentarios */ 
-COMENTARIO          "*-".*"-*"
 COMENTARIO_ANIDADO  "*-".*{COMENTARIO}.*"-*"
+COMENTARIO          "*-".*"-*"
 
 %%
 {OP_ASIG}                   {return OP_ASIG;}
@@ -134,8 +134,9 @@ COMENTARIO_ANIDADO  "*-".*{COMENTARIO}.*"-*"
 {CONST_INT}             {validar_rango_int(yytext); obtenerLexema(yytext); agregar_num_a_TS(yytext, TIPO_INT); return CONST_INT;}
 {CONST_STR}             {validar_longitud_str(yytext); obtenerLexema(yytext); agregar_string_a_TS(yytext); return CONST_STR;}
 
-{COMENTARIO}            {printf("\nComentario: %s", yytext);}
+
 {COMENTARIO_ANIDADO}    {printf("\nComentario anidado: %s", yytext);}
+{COMENTARIO}            {printf("\nComentario: %s", yytext);}
 
 "\n"
 "\t"

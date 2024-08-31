@@ -1,5 +1,14 @@
-resu := -(var - (-otravar) / 2 + (-4)) - 4 + (-4)
+*- comment normal-*
 
-resu := .99 + 2.
+*- *- comment anidado -* -*
 
-*- hola *- fdsjbhfjds -* fdsnfdios -*
+init {
+    x, z, a, b, c, var_entera : Int
+    variable1, var_flotante : Float
+    y, p1, var_cadena : String
+}
+
+*- test -*
+mientras (x > y) {
+    x := 1
+}
