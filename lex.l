@@ -12,15 +12,9 @@
 #define MIN_FLOAT -2147483648
 #define MAX_FLOAT 2147483647
 
-enum tipoLex
-{
-    id,
-    constInt,
-    constFlt,
-    constStr
-};
+#define TIPO_FLOAT "Float"
+#define TIPO_INT "Int"
 
-void guardar_en_TS();
 void mostrar_token_inutil();
 void validar_longitud_str(char* str);
 void validar_rango_int(char* str);
@@ -28,12 +22,12 @@ void validar_rango_float(char* str);
 void handleErr(char* str);
 void obtenerLexema(char* nombre);
 
-void agregar_a_TS(char* lex, enum tipoLex tipo);
-void eliminar_caracteres(char *s, char c);
+void agregar_a_TS(t_lexema lexema);
+void agregar_string_a_TS(char* lex);
+void agregar_num_a_TS(char* lex, char* tipo);
+void agregar_id_a_TS(char* lex);
 
-t_lexema convertirStrALexema(char* lex);
-t_lexema convertirNumALexema(char* lex, char* tipo);
-t_lexema convertirIdALexema(char* lex);
+void eliminar_caracteres(char *s, char c);
 
 extern t_lista lista_simbolos;
 
@@ -135,10 +129,10 @@ COMENTARIO_ANIDADO  "*-".*{COMENTARIO}.*"-*"
 {SUMALOSULTIMOS}            {return SUMALOSULTIMOS;}
 
 
-{ID}                    {obtenerLexema(yytext); agregar_a_TS(yytext, id); return ID;}
-{CONST_REAL}            {validar_rango_float(yytext); obtenerLexema(yytext); agregar_a_TS(yytext, constFlt); return CONST_REAL;}
-{CONST_INT}             {validar_rango_int(yytext); obtenerLexema(yytext); agregar_a_TS(yytext, constInt); return CONST_INT;}
-{CONST_STR}             {validar_longitud_str(yytext); obtenerLexema(yytext); agregar_a_TS(yytext, constStr); return CONST_STR;}
+{ID}                    {obtenerLexema(yytext); agregar_id_a_TS(yytext); return ID;}
+{CONST_REAL}            {validar_rango_float(yytext); obtenerLexema(yytext); agregar_num_a_TS(yytext, TIPO_FLOAT); return CONST_REAL;}
+{CONST_INT}             {validar_rango_int(yytext); obtenerLexema(yytext); agregar_num_a_TS(yytext, TIPO_INT); return CONST_INT;}
+{CONST_STR}             {validar_longitud_str(yytext); obtenerLexema(yytext); agregar_string_a_TS(yytext); return CONST_STR;}
 
 {COMENTARIO}            {printf("\nComentario: %s", yytext);}
 {COMENTARIO_ANIDADO}    {printf("\nComentario anidado: %s", yytext);}
@@ -153,23 +147,6 @@ COMENTARIO_ANIDADO  "*-".*{COMENTARIO}.*"-*"
 
 %%
 
-/*
-int main(int argc,char *argv[])
-{
-    if ((yyin = fopen(argv[1], "rt")) == NULL) {
-        printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
-    }
-
-    yylex();
-    fclose(yyin);
-
-    printf("la lista vale: %p", lista_ts);
-}
-*/
-
-void guardar_en_TS(){
-    printf("Guarda en TS");
-}
 
 void validar_longitud_str(char* str){
     if(strlen(str) - 2 > MAX_STR_LEN) { // - 2 por las comillas
@@ -202,79 +179,56 @@ void obtenerLexema(char* nombre){
     strcpy(yylval.str_val, nombre);
 }
 
-void agregar_a_TS(char* lex, enum tipoLex tipo){
-    t_lexema lexema;
-
-    char lexCopy[100];
-    strcpy(lexCopy, lex);
-
-    switch (tipo) {
-        case constInt:
-            lexema = convertirNumALexema(lexCopy, "int");
-            /*
-                strcpy(lexema.valor, lex);
-                strcpy(lexema.tipodato, "int");
-                strcpy(lexema.longitud, "0");
-                strcpy(lexema.nombre, "_");
-                strcat(lexema.nombre, lex);
-            */
-            break;
-        case constFlt:
-            lexema = convertirNumALexema(lexCopy, "float");
-            /*
-            strcpy(lexema.valor, lex);
-            strcpy(lexema.tipodato, "float");
-            strcpy(lexema.longitud, "0");
-            strcpy(lexema.nombre, "_");
-            strcat(lexema.nombre, lex);
-            */
-            break;
-        case constStr:
-            lexema = convertirStrALexema(lexCopy);
-            break;
-        case id:
-            lexema = convertirIdALexema(lexCopy);
-            /*
-            strcpy(lexema.nombre, lex);
-            strcpy(lexema.valor, "");
-            strcpy(lexema.tipodato, "");
-            strcpy(lexema.longitud, "");
-            */
-            break;
-    }
-
-    printf("\nSe va a insertar en la lista: (%s, %s, %s, %s)", lexema.nombre, lexema.tipodato, lexema.valor, lexema.longitud);
+void agregar_a_TS(t_lexema lexema){
     insertarEnListaSinDuplicados(&lista_simbolos, lexema);
 }
 
-t_lexema convertirStrALexema(char* lex)
+void agregar_string_a_TS(char* lex)
 {
+    char lexCopy[100];
+    strcpy(lexCopy, lex);
+
     t_lexema lexema;
 
-    eliminar_caracteres(lex, '"');
-    strcpy(lexema.valor, lex);
+    eliminar_caracteres(lexCopy, '"');
+    strcpy(lexema.valor, lexCopy);
     strcpy(lexema.tipodato, "string");
-    itoa(strlen(lex), lexema.longitud, 10);
+    itoa(strlen(lexCopy), lexema.longitud, 10);
     strcpy(lexema.nombre, "_");
-    strcat(lexema.nombre, lex);
+    strcat(lexema.nombre, lexCopy);
 
-    return lexema;
+    agregar_a_TS(lexema);
 }
 
-t_lexema convertirNumALexema(char* lex, char* tipo)
+void agregar_num_a_TS(char* lex, char* tipo)
 {
+    char lexCopy[100];
     t_lexema lexema;
 
-    strcpy(lexema.valor, lex);
+    if (!strcmp(tipo, TIPO_FLOAT))
+    {
+        strcpy(lexCopy, lex);
+        if (lex[0] == '.') {
+            strcpy(lexCopy, "0");
+            strcat(lexCopy, lex);
+        } else if (lex[strlen(lex) - 1] == '.') {
+            strcpy(lexCopy, lex);
+            strcat(lexCopy, "0");
+        }
+    } else {
+        strcpy(lexCopy, lex);
+    }
+
+    strcpy(lexema.valor, lexCopy);
     strcpy(lexema.tipodato, tipo);
     strcpy(lexema.longitud, "0");
     strcpy(lexema.nombre, "_");
-    strcat(lexema.nombre, lex);
+    strcat(lexema.nombre, lexCopy);
 
-    return lexema;
+    agregar_a_TS(lexema);
 }
 
-t_lexema convertirIdALexema(char* lex)
+void agregar_id_a_TS(char* lex)
 {
     t_lexema lexema;
 
@@ -283,7 +237,7 @@ t_lexema convertirIdALexema(char* lex)
     strcpy(lexema.tipodato, "");
     strcpy(lexema.longitud, "");
 
-    return lexema;
+    agregar_a_TS(lexema);
 }
 
 void eliminar_caracteres(char *s, char c)

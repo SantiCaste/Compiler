@@ -64,8 +64,14 @@ t_lista lista_simbolos;
 %token COMENTARIO
 %token COMENTARIO_ANIDADO
 
+
 /* START SYMBOL */
 %start inicio
+
+
+%left '+' '-'
+%left '*' '/'
+%right MENOS_UNARIO
 
 %%
 inicio: 
@@ -128,7 +134,7 @@ condicional:
 ;
 
 condicion:
-    expresion comparador expresion
+    expresion comparador expresion {printf("entra aca");}
 ;
 
 comparador:
@@ -146,28 +152,30 @@ operador_logico:
 ;
 
 asignacion:
-    ID OP_ASIG expresion
+    ID OP_ASIG expresion            {printf("\nAsignacion: %s <-", $1);}
     |ID OP_ASIG CONST_STR
     |ID OP_ASIG funcion_especial
 ;
 
 expresion:
-    expresion OP_ADD termino
-    |expresion OP_SUB termino
-    |termino
+    expresion OP_ADD termino        {printf("\nExpresion + termino");}
+    |expresion OP_SUB termino       {printf("\nExpresion - termino");}
+    |termino                        {printf("\nTermino");}
 ;
 
 termino:
-    termino OP_MUL factor
-    |termino OP_DIV factor
-    |factor
+    termino OP_MUL factor           {printf("\nTermino * factor");}
+    |termino OP_DIV factor          {printf("\nTermino / factor");}
+    |factor                         {printf("\nFactor");}
 ;
 
 factor:
-    ID                          {printf("\nfactor: %s", $1);}
-    |CONST_INT
-    |CONST_REAL
-    |PAR_OP expresion PAR_CL
+    ID                          {printf("\nElemento: %s", $1);}
+    |OP_SUB PAR_OP expresion PAR_CL %prec MENOS_UNARIO      {printf("\nMenos unario a (-expresion)");}
+    |OP_SUB ID %prec MENOS_UNARIO                           {printf("\nMenos unario: - %s", $2);}
+    |CONST_INT                  {printf("\nInt: %s", $1);}
+    |CONST_REAL                 {printf("\nFloat: %s", $1);}
+    |PAR_OP expresion PAR_CL    {printf("\nExpresion ()");}
 ;
 
 leer:
@@ -176,7 +184,7 @@ leer:
 
 escribir:
     WRITE PAR_OP expresion PAR_CL
-    |WRITE PAR_OP CONST_STR PAR_CL      {printf("\nimprime const str: %s", $3);}
+    |WRITE PAR_OP CONST_STR PAR_CL
 ;
 
 funcion_especial:
