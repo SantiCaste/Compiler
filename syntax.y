@@ -227,11 +227,13 @@ void guardar_TS(){
     t_lexema lex;
 
     fprintf(ts, "NOMBRE|TIPO|VALOR|LONGITUD\n");
-    while(sacarPrimeroLista(&lista_simbolos, &lex)) {
-        fprintf(ts, "%s|%s|%s|%s\n", lex.nombre, lex.tipoDato, lex.valor, lex.longitud);
+    while(quitarPrimeroDeLista(&lista_simbolos, &lex)) {
+        fprintf(ts, "%s|%s|%s|%s\n", lex.nombre, lex.tipodato, lex.valor, lex.longitud);
     }
 
     fclose(ts);
+
+    vaciarLista(&lista_simbolos);
 
     return;
 }

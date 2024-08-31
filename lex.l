@@ -26,9 +26,14 @@ void validar_longitud_str(char* str);
 void validar_rango_int(char* str);
 void validar_rango_float(char* str);
 void handleErr(char* str);
-void copiarLexema(char* nombre);
+void obtenerLexema(char* nombre);
 
 void agregar_a_TS(char* lex, enum tipoLex tipo);
+void eliminar_caracteres(char *s, char c);
+
+t_lexema convertirStrALexema(char* lex);
+t_lexema convertirNumALexema(char* lex, char* tipo);
+t_lexema convertirIdALexema(char* lex);
 
 extern t_lista lista_simbolos;
 
@@ -90,9 +95,9 @@ WRITE                   "escribir"
 GETPENULTIMATEPOSITION  "getPenultimatePosition"
 SUMALOSULTIMOS          "sumaLosUltimos"
 
-/* Comentarios */
-COMENTARIO "*-"[^-*]*"-*"
-COMENTARIO_ANIDADO  "*-"[^*-]*{COMENTARIO}[^-*]*"-*"
+/* Comentarios */ 
+COMENTARIO          "*-".*"-*"
+COMENTARIO_ANIDADO  "*-".*{COMENTARIO}.*"-*"
 
 %%
 {OP_ASIG}                   {return OP_ASIG;}
@@ -130,13 +135,13 @@ COMENTARIO_ANIDADO  "*-"[^*-]*{COMENTARIO}[^-*]*"-*"
 {SUMALOSULTIMOS}            {return SUMALOSULTIMOS;}
 
 
-{ID}                    {copiarLexema(yytext); agregar_a_TS(yytext, id); return ID;}
-{CONST_REAL}            {validar_rango_float(yytext); copiarLexema(yytext); agregar_a_TS(yytext, constFlt); return CONST_REAL;}
-{CONST_INT}             {validar_rango_int(yytext); copiarLexema(yytext); agregar_a_TS(yytext, constInt); return CONST_INT;}
-{CONST_STR}             {validar_longitud_str(yytext); copiarLexema(yytext); agregar_a_TS(yytext, constStr); return CONST_STR;}
+{ID}                    {obtenerLexema(yytext); agregar_a_TS(yytext, id); return ID;}
+{CONST_REAL}            {validar_rango_float(yytext); obtenerLexema(yytext); agregar_a_TS(yytext, constFlt); return CONST_REAL;}
+{CONST_INT}             {validar_rango_int(yytext); obtenerLexema(yytext); agregar_a_TS(yytext, constInt); return CONST_INT;}
+{CONST_STR}             {validar_longitud_str(yytext); obtenerLexema(yytext); agregar_a_TS(yytext, constStr); return CONST_STR;}
 
-{COMENTARIO}
-{COMENTARIO_ANIDADO}
+{COMENTARIO}            {printf("\nComentario: %s", yytext);}
+{COMENTARIO_ANIDADO}    {printf("\nComentario anidado: %s", yytext);}
 
 "\n"
 "\t"
@@ -193,51 +198,107 @@ void handleErr(char* str){
     printf("\nCaracter inesperado: %s\n", yytext);
 }
 
-void copiarLexema(char* nombre){
+void obtenerLexema(char* nombre){
     strcpy(yylval.str_val, nombre);
 }
 
 void agregar_a_TS(char* lex, enum tipoLex tipo){
     t_lexema lexema;
 
-    //printf("\nlex tiene: %s, y tipo es: %d", lex, tipo);
-    //char stringSinComillas[100];
-    //strcpy(stringSinComillas, "");
+    char lexCopy[100];
+    strcpy(lexCopy, lex);
 
     switch (tipo) {
         case constInt:
-            strcpy(lexema.valor, lex);
-            strcpy(lexema.tipoDato, "int");
-            strcpy(lexema.longitud, "0");
-            strcpy(lexema.nombre, "_");
-            strcat(lexema.nombre, lex);
-            break;        
+            lexema = convertirNumALexema(lexCopy, "int");
+            /*
+                strcpy(lexema.valor, lex);
+                strcpy(lexema.tipodato, "int");
+                strcpy(lexema.longitud, "0");
+                strcpy(lexema.nombre, "_");
+                strcat(lexema.nombre, lex);
+            */
+            break;
         case constFlt:
+            lexema = convertirNumALexema(lexCopy, "float");
+            /*
             strcpy(lexema.valor, lex);
-            strcpy(lexema.tipoDato, "float");
+            strcpy(lexema.tipodato, "float");
             strcpy(lexema.longitud, "0");
             strcpy(lexema.nombre, "_");
             strcat(lexema.nombre, lex);
+            */
             break;
         case constStr:
-            //strncpy(stringSinComillas, lex+1, strlen(lex) - 2);
-            //strcat(stringSinComillas, "\0");
-
-            strcpy(lexema.valor, lex);
-            strcpy(lexema.tipoDato, "string");
-            itoa(strlen(lex), lexema.longitud, 10);
-            strcpy(lexema.nombre, "_");
-            strcat(lexema.nombre, lex);
+            lexema = convertirStrALexema(lexCopy);
             break;
         case id:
+            lexema = convertirIdALexema(lexCopy);
+            /*
             strcpy(lexema.nombre, lex);
             strcpy(lexema.valor, "");
-            strcpy(lexema.tipoDato, "");
+            strcpy(lexema.tipodato, "");
             strcpy(lexema.longitud, "");
+            */
             break;
     }
 
-    //printf("\nSe va a insertar en la lista: (%s, %s, %s, %s)", lexema.nombre, lexema.tipoDato, lexema.valor, lexema.longitud);
+    printf("\nSe va a insertar en la lista: (%s, %s, %s, %s)", lexema.nombre, lexema.tipodato, lexema.valor, lexema.longitud);
+    insertarEnListaSinDuplicados(&lista_simbolos, lexema);
+}
 
-    insertarFinalLista(&lista_simbolos, lexema);
+t_lexema convertirStrALexema(char* lex)
+{
+    t_lexema lexema;
+
+    eliminar_caracteres(lex, '"');
+    strcpy(lexema.valor, lex);
+    strcpy(lexema.tipodato, "string");
+    itoa(strlen(lex), lexema.longitud, 10);
+    strcpy(lexema.nombre, "_");
+    strcat(lexema.nombre, lex);
+
+    return lexema;
+}
+
+t_lexema convertirNumALexema(char* lex, char* tipo)
+{
+    t_lexema lexema;
+
+    strcpy(lexema.valor, lex);
+    strcpy(lexema.tipodato, tipo);
+    strcpy(lexema.longitud, "0");
+    strcpy(lexema.nombre, "_");
+    strcat(lexema.nombre, lex);
+
+    return lexema;
+}
+
+t_lexema convertirIdALexema(char* lex)
+{
+    t_lexema lexema;
+
+    strcpy(lexema.nombre, lex);
+    strcpy(lexema.valor, "");
+    strcpy(lexema.tipodato, "");
+    strcpy(lexema.longitud, "");
+
+    return lexema;
+}
+
+void eliminar_caracteres(char *s, char c)
+{
+    int writer = 0, reader = 0;
+
+    while (s[reader])
+    {
+        if (s[reader]!=c) 
+        {   
+            s[writer++] = s[reader];
+        }
+
+        reader++;       
+    }
+
+    s[writer]=0;
 }

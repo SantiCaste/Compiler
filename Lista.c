@@ -1,53 +1,84 @@
 #include "Lista.h"
 
 
-void crearLista(t_lista *l)
+ void crearLista(t_lista* l)
 {
     *l = NULL;
 }
 
-int insertarFinalLista(t_lista *l, t_lexema lex)
+int insertarEnListaAlFinal(t_lista *l, t_lexema lex)
 {
     t_nodo *nue;
-
-    // AVANZAR EN LISTA HASTA EL FINAL
     while(*l)
+    {
         l = &(*l)->sig;
+    }
 
-    ///RESERVA MEMORIA PARA NUE
     nue = (t_nodo*)malloc(sizeof(t_nodo));
     if(!nue)
+    {
         return 0;
-
-    strcpy(nue->lexema.nombre, lex.nombre);
-    strcpy(nue->lexema.tipoDato, lex.tipoDato);
-    strcpy(nue->lexema.valor, lex.valor);
-    strcpy(nue->lexema.longitud, lex.longitud);
-
+    }
+    
+    copiarLexema(&(nue->lexema), lex);
     nue->sig = NULL;
-
-    ///ENGANCHE
     *l = nue;
 
     return 1;
 }
 
-int sacarPrimeroLista(t_lista *l, t_lexema *lex)
+int insertarEnListaSinDuplicados(t_lista *l, t_lexema lex)
+{
+    t_nodo *nue;
+    while(*l)
+    {
+        if (!strcmp((*l)->lexema.nombre, lex.nombre))
+        {
+            return 0;
+        }
+
+        l = &(*l)->sig;
+    }
+    
+    nue = (t_nodo*)malloc(sizeof(t_nodo));
+    if(!nue)
+    {
+        return 0;
+    }
+
+    copiarLexema(&(nue->lexema), lex);
+    nue->sig = NULL;
+    *l = nue;
+
+    return 1;
+}
+
+int quitarPrimeroDeLista(t_lista *l, t_lexema *lex)
 {
     t_nodo *aux = *l;
-
     if(!aux)
+    {
         return 0;
+    }
 
     *l = aux->sig;
-    
-    strcpy(lex->nombre, aux->lexema.nombre);
-    strcpy(lex->tipoDato, aux->lexema.tipoDato);
-    strcpy(lex->valor, aux->lexema.valor);
-    strcpy(lex->longitud, aux->lexema.longitud);
-    
+    copiarLexema(lex, aux->lexema);
     free(aux);
 
+    return 1;
+}
+
+int obtenerPrimeroDeLista(t_lista *l, t_lexema *lex)
+{
+    t_nodo *aux = *l;
+    if(!aux)
+    {
+        return 0;
+    }
+
+    *l = aux->sig;
+    copiarLexema(lex, aux->lexema);
+    
     return 1;
 }
 
@@ -60,25 +91,16 @@ int buscarEnlista(const t_lista *l, const char *nombre, t_lexema *lex)
 
     if (*l)
     {
-        strcpy(lex->nombre, (*l)->lexema.nombre);
-        strcpy(lex->tipoDato, (*l)->lexema.tipoDato);
-        strcpy(lex->valor, (*l)->lexema.valor);
-        strcpy(lex->longitud, (*l)->lexema.longitud);
+        copiarLexema(lex, (*l)->lexema);
         return 1;
     }
     
     return 0;
 }
 
-int listaVacia(const t_lista *l)
-{
-    return *l == NULL;
-}
-
 void vaciarLista(t_lista *l)
 {
     t_nodo *elim;
-
     while(*l)
     {
         elim = *l;
@@ -87,26 +109,10 @@ void vaciarLista(t_lista *l)
     }
 }
 
-void buscarYactualizar(t_lista* lista, const char* nombre, const char* tipo_Dato)
+void copiarLexema(t_lexema* dest, t_lexema orig)
 {
-    t_nodo* actual = *lista;
-    
-    while (actual != NULL) {
-        if (strcmp(actual->lexema.nombre, nombre) == 0) 
-        {
-            strcpy(actual->lexema.tipoDato, tipo_Dato);
-            return; // Elemento encontrado y actualizado, salir de la función
-        }
-        actual = actual->sig;
-    }
-}
-
-void duplicarLista( t_lista *dirListaOriginal, t_lista *dirListaDuplicado )
-{
-    *dirListaDuplicado=NULL;
-    while(*dirListaOriginal != NULL)
-    {
-        insertarFinalLista( dirListaDuplicado, (*dirListaOriginal)->lexema );
-        dirListaOriginal= &((*dirListaOriginal)->sig);
-    }
+    strcpy(dest->nombre, orig.nombre);
+    strcpy(dest->tipodato, orig.tipodato);
+    strcpy(dest->valor, orig.valor);
+    strcpy(dest->longitud, orig.longitud);
 }

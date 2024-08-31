@@ -1,11 +1,8 @@
 NOMBRE|TIPO|VALOR|LONGITUD
 a|||
 _99999.99|float|99999.99|0
-a|||
 _99.|float|99.|0
-a|||
 _.9999|float|.9999|0
 b|||
-_"@sdADaSjfla%dfg"|string|"@sdADaSjfla%dfg"|17
-b|||
-_"asldk  fh sjf"|string|"asldk  fh sjf"|15
+_@sdADaSjfla%dfg|string|@sdADaSjfla%dfg|15
+_asldk  fh sjf|string|asldk  fh sjf|13
