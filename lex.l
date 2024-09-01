@@ -135,8 +135,8 @@ COMENTARIO          "*-".*"-*"
 {CONST_STR}             {validar_longitud_str(yytext); obtenerLexema(yytext); agregar_string_a_TS(yytext); return CONST_STR;}
 
 
-{COMENTARIO_ANIDADO}    {printf("\nComentario anidado: %s", yytext);}
-{COMENTARIO}            {printf("\nComentario: %s", yytext);}
+{COMENTARIO_ANIDADO}    {printf("Comentario anidado: %s\n", yytext);}
+{COMENTARIO}            {printf("Comentario: %s\n", yytext);}
 
 "\n"
 "\t"
